@@ -9,6 +9,7 @@ import logging
 from scapy.all import *
 from pprint import pprint
 from logging.handlers import RotatingFileHandler
+from datetime import datetime
 
 
 NAME = 'probemon'
@@ -18,7 +19,7 @@ DEBUG = False
 
 def build_packet_callback(time_fmt, logger, delimiter, mac_info, ssid, rssi):
 	def packet_callback(packet):
-		
+
 		if not packet.haslayer(Dot11):
 			return
 
@@ -30,7 +31,7 @@ def build_packet_callback(time_fmt, logger, delimiter, mac_info, ssid, rssi):
 		# list of output fields
 		fields = []
 
-		# determine preferred time format 
+		# determine preferred time format
 		log_time = str(int(time.time()))
 		if time_fmt == 'iso':
 			log_time = datetime.datetime.now().isoformat()
@@ -45,16 +46,18 @@ def build_packet_callback(time_fmt, logger, delimiter, mac_info, ssid, rssi):
 			try:
 				parsed_mac = netaddr.EUI(packet.addr2)
 				fields.append(parsed_mac.oui.registration().org)
-			except netaddr.core.NotRegisteredError, e:
+			except netaddr.core.NotRegisteredError:
 				fields.append('UNKNOWN')
 
 		# include the SSID in the probe frame
 		if ssid:
-			fields.append(packet.info)
-			
+			fields.append(str(packet.info))
+
 		if rssi:
 			rssi_val = -(256-ord(packet.notdecoded[-4:-3]))
 			fields.append(str(rssi_val))
+
+		fields.append(str(datetime.now()))
 
 		logger.info(delimiter.join(fields))
 
@@ -76,9 +79,9 @@ def main():
 	args = parser.parse_args()
 
 	if not args.interface:
-		print "error: capture interface not given, try --help"
+		print ("error: capture interface not given, try --help")
 		sys.exit(-1)
-	
+
 	DEBUG = args.debug
 
 	# setup our rotating logger
@@ -88,7 +91,7 @@ def main():
 	logger.addHandler(handler)
 	if args.log:
 		logger.addHandler(logging.StreamHandler(sys.stdout))
-	built_packet_cb = build_packet_callback(args.time, logger, 
+	built_packet_cb = build_packet_callback(args.time, logger,
 		args.delimiter, args.mac_info, args.ssid, args.rssi)
 	sniff(iface=args.interface, prn=built_packet_cb, store=0)
 
