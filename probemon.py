@@ -19,9 +19,8 @@ DEBUG = False
 
 def build_packet_callback(time_fmt, logger, delimiter, mac_info, ssid, rssi):
 	def packet_callback(packet):
-
-		if not packet.haslayer(Dot11):
-			return
+		# if not packet.haslayer(Dot11):
+		# 	return
 
 		# we are looking for management frames with a probe subtype
 		# if neither match we are done here
@@ -93,6 +92,7 @@ def main():
 		logger.addHandler(logging.StreamHandler(sys.stdout))
 	built_packet_cb = build_packet_callback(args.time, logger,
 		args.delimiter, args.mac_info, args.ssid, args.rssi)
+	print('sniffing', args.interface)
 	sniff(iface=args.interface, prn=built_packet_cb, store=0)
 
 if __name__ == '__main__':
