@@ -16,6 +16,7 @@ NAME = 'probemon'
 DESCRIPTION = "a command line tool for logging 802.11 probe request frames"
 
 DEBUG = False
+start_time = int(time.time())
 
 def build_packet_callback(time_fmt, logger, delimiter, mac_info, ssid, rssi):
 	def packet_callback(packet):
@@ -32,9 +33,7 @@ def build_packet_callback(time_fmt, logger, delimiter, mac_info, ssid, rssi):
 		fields = []
 
 		# determine preferred time format
-		log_time = str(int(time.time()))
-		if time_fmt == 'iso':
-			log_time = datetime.datetime.now().isoformat()
+		log_time = str(int(time.time()) - start_time)
 
 		fields.append(log_time)
 
@@ -56,8 +55,6 @@ def build_packet_callback(time_fmt, logger, delimiter, mac_info, ssid, rssi):
 		if rssi:
 			rssi_val = -(256-ord(packet.notdecoded[-4:-3]))
 			fields.append(str(rssi_val))
-
-		fields.append(str(datetime.now()))
 
 		logger.info(delimiter.join(fields))
 
