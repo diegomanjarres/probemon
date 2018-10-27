@@ -19,11 +19,12 @@ DEBUG = False
 
 def build_packet_callback(time_fmt, logger, delimiter, mac_info, ssid, rssi):
 	def packet_callback(packet):
-		# if not packet.haslayer(Dot11):
-		# 	return
+		#if not packet.haslayer(Dot11):
+		#	return
 
 		# we are looking for management frames with a probe subtype
 		# if neither match we are done here
+		#print('packet')
 		if packet.type != 0 or packet.subtype != 0x04:
 			return
 

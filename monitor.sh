@@ -1,4 +1,4 @@
-sudo ifconfig ${ANTENNA} down
-sudo service network-manager stop
-sudo iwconfig ${ANTENNA} mode monitor
-sudo ifconfig ${ANTENNA} up
+sudo ifconfig wlan1 down
+sudo service network-manager stop || echo "no network manager"
+sudo iwconfig wlan1 mode monitor
+sudo ifconfig wlan1 up
