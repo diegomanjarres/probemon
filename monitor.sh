@@ -1,4 +1,4 @@
-sudo ifconfig wlan1 down
+sudo ifconfig wlan0 down
 sudo service network-manager stop || echo "no network manager"
-sudo iwconfig wlan1 mode monitor
-sudo ifconfig wlan1 up
+sudo iwconfig wlan0 mode monitor
+sudo ifconfig wlan0 up
