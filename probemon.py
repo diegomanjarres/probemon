@@ -1,5 +1,5 @@
 #!/usr/bin/python
-
+import os
 import time
 import datetime
 import argparse
@@ -10,16 +10,31 @@ from scapy.all import *
 from pprint import pprint
 from logging.handlers import RotatingFileHandler
 from datetime import datetime
-
+import threading
 
 NAME = 'probemon'
 DESCRIPTION = "a command line tool for logging 802.11 probe request frames"
 
 DEBUG = False
 start_time = int(time.time())
+count=1
+
+def beep():
+	global count
+	if count > 0:
+		print("info: got " + str(count) + "packets in 15 seconds\n")
+		os.system("play --no-show-progress --null --channels 1 synth 1 sine 440")
+		count=0
+	else:
+		print("info: no packets in 15 seconds\n")
+		os.system("play --no-show-progress --null --channels 1 synth 15 sine 440")
+	sys.stdout.flush()
+	threading.Timer(15, beep).start()
 
 def build_packet_callback(time_fmt, logger, delimiter, mac_info, ssid, rssi):
 	def packet_callback(packet):
+		global count
+		count += 1
 		#if not packet.haslayer(Dot11):
 		#	return
 
@@ -91,6 +106,7 @@ def main():
 	built_packet_cb = build_packet_callback(args.time, logger,
 		args.delimiter, args.mac_info, args.ssid, args.rssi)
 	print('sniffing', args.interface)
+	beep()
 	sniff(iface=args.interface, prn=built_packet_cb, store=0)
 
 if __name__ == '__main__':
